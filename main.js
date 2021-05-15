@@ -14,7 +14,9 @@ let cube = {
     height: 56,
     trn: .25,
     step: 56,
-    color: 'black'
+    color: 'black',
+    oldX: 0,
+    oldY: 0
 }
 
 let bots = [];
@@ -48,8 +50,8 @@ let buff = {
 // buffs.push(spawnCube(map, buff));
 
 renderMap(map);
-renderCube(spawnCube( map, cube));
+renderCube(spawnCube(map, cube));
 // renderBots(bots);
 // renderBuffs(buffs);
 
-let tike = setInterval(timeTike, 1000);
+let tike = setInterval(timeTike, 7000);

@@ -2,6 +2,9 @@ document.onkeydown = checkButton;
 
 function checkButton(event) {
 
+    cube.oldX = cube.x;
+    cube.oldY = cube.y;
+
     let cubeRight = cube.x + cube.width;
     let cubeBottom = cube.y + cube.height;
 
@@ -63,6 +66,8 @@ function checkButton(event) {
     }
 
     renderCube(cube);
+
+    initShot();
 }
 
 function renderCube(cube) {
@@ -83,6 +88,7 @@ function renderMap(map) {
 }
 
 function spawnCube(map, cube) {
+
     let mapMinX = map.x;
     let mapMaxX = map.x + map.width - cube.width;
 
@@ -92,71 +98,111 @@ function spawnCube(map, cube) {
     cube.x = Math.round(
         mapMinX +
         Math.random() * (mapMaxX - mapMinX)
-    );
+        );
+
     cube.y = Math.round(
         mapMinY +
-        Math.random() * (mapMaxY - mapMinY) 
-    );
-    bot.x = Math.round(
-        mapMinX +
-        Math.random() * (mapMaxX - mapMinX)
-    );
-    bot.y = Math.round(
-        mapMinY +
-        Math.random() * (mapMaxY - mapMinY) 
-    );
-  
+        Math.random() * (mapMaxY - mapMinY)
+        );
     return cube;
 }
 
-function renderBots(bots){
-    bots.map(bot =>{
-        let div = document.createElement('div');
-        div.id ='bot_' + bot.id;
-        div.className = 'bot';
-        document.body.append(div);
+function renderBots(bots) {
+    bots.map(bot => {
+        if (!document.getElementById('bot_' + bot.id)) {
+            let div = document.createElement('div');
+            div.id = 'bot_' + bot.id;
+            div.className = 'bot';
+            document.body.append(div);
+        }
+
         renderBot(bot);
     });
 }
 
-function renderBot(bot){
-    document.getElementById('bot_'+ bot.id).style.top = bot.y + 'px';
-    document.getElementById('bot_'+ bot.id).style.left = bot.x + 'px';
-    document.getElementById('bot_'+ bot.id).style.transition = 'ease ' + bot.trn + 's';
-    document.getElementById('bot_'+ bot.id).style.width = bot.width + 'px';
-    document.getElementById('bot_'+ bot.id).style.height = bot.height + 'px';
-    document.getElementById('bot_'+ bot.id).style.backgroundColor = bot.color;
-};
+function renderBot(bot) {
+    document.getElementById('bot_' + bot.id).style.top = bot.y + 'px';
+    document.getElementById('bot_' + bot.id).style.left = bot.x + 'px';
+    document.getElementById('bot_' + bot.id).style.transition = 'ease ' + bot.trn + 's';
+    document.getElementById('bot_' + bot.id).style.width = bot.width + 'px';
+    document.getElementById('bot_' + bot.id).style.height = bot.height + 'px';
+    document.getElementById('bot_' + bot.id).style.backgroundColor = bot.color;
+}
 
-function renderBuffs(buffs){
-    buffs.map(buff =>{
-        let div = document.createElement('div');
-        div.id ='buff_' + buff.id;
-        div.className = 'buff';
-        document.body.append(div);
+function renderBuffs(buffs) {
+    buffs.map(buff => {
+        if (!document.getElementById('buff_' + buff.id)) {
+            let div = document.createElement('div');
+            div.id = 'buff_' + buff.id;
+            div.className = 'buff';
+            document.body.append(div);
+        }
+
         renderBuff(buff);
     });
 }
-function renderBuff(buff){
+
+function renderBuff(buff) {
     document.getElementById('buff_' + buff.id).style.top = buff.y + 'px';
     document.getElementById('buff_' + buff.id).style.left = buff.x + 'px';
     document.getElementById('buff_' + buff.id).style.transition = 'ease ' + buff.trn + 's';
     document.getElementById('buff_' + buff.id).style.width = buff.width + 'px';
     document.getElementById('buff_' + buff.id).style.height = buff.height + 'px';
     document.getElementById('buff_' + buff.id).style.backgroundColor = buff.color;
-};
-
-function timeTike(){
-    // console.log(new Date().getSeconds());
-    buffsLogic();
-    botsLogic();
 }
 
-function buffsLogic(){
+function timeTike() {
+    // console.log(new Date().getSeconds());
+    buffsLogic();
+    // botsLogic();
+}
+
+function buffsLogic() {
     buffs.push(spawnCube(map, buff));
     renderBuffs(buffs);
 }
-function botsLogic(){
+
+function botsLogic() {
     bots.push(spawnCube(map, bot));
     renderBots(bots);
+}
+
+
+function initShot() {
+
+    let cubeBottom = cube.y + cube.height;
+    let cubeRight = cube.x + cube.width;
+
+    buffs.map((buff, index) => {
+
+        let buffBottom = buff.y + buff.height;
+        let buffRight = buff.x + buff.width;
+
+        if ((buff.y > cube.oldY && buff.y < cube.y) ||
+        (buff.y > cube.y && buff.y < cube.oldY)) {
+            if ((cube.x < buffRight && cube.x > buff.x) || 
+            (cubeRight < buffRight && cubeRight > buff.x)) {
+                shotBuff(buff);
+                buffs.splice(index, 1);
+                
+                console.log(buffs);
+            }
+        }
+        if ((buff.x > cube.oldX && buff.x < cube.x) || 
+        (buff.x > cube.x && buff.x < cube.oldX)) {
+
+            if ((cube.y < buffBottom && cube.y > buff.y) || 
+            (cubeBottom < buffBottom && cubeBottom > buff.y)) {
+                shotBuff(buff);
+                buffs.splice(index, 1);
+
+                console.log(buffs);
+            }
+        }
+    });
+}
+
+function shotBuff(buff) {
+    console.log('shotBuff');
+    document.getElementById('buff_' + buff.id).remove();
 }
